@@ -11,6 +11,12 @@ pub mod hero_mod {
         pub name: String,
         pub age: u8,
         pub gender: Gender,
+        pub level: u8,
+        pub health: u64,
+        pub strength: u16,
+        pub dexterity: u16,
+        pub intelligence: u16,
+        pub luck: u16,
     }
 
     pub fn hero_factory(char_name: &str, char_age: u8, char_gender: Gender) -> Hero {
@@ -18,6 +24,12 @@ pub mod hero_mod {
             name: String::from(char_name),
             age: char_age,
             gender: char_gender,
+            level: 0,
+            health: 100,
+            strength: 5,
+            dexterity: 5,
+            intelligence: 5,
+            luck: 5,
         }
     }
 
@@ -125,13 +137,5 @@ pub mod hero_mod {
         assert_eq!(hero.name, "Charlie");
         assert_eq!(hero.age, 16);
         assert_eq!(hero.gender.to_string(), "Female");
-    }
-
-    #[test]
-    fn test_char_creation() {
-        let test_hero = get_hero_details_from_user();
-        assert_eq!(test_hero.name, "ben");
-        assert_eq!(test_hero.age, 16);
-        assert_eq!(test_hero.gender.to_string(), "Female");
     }
 }

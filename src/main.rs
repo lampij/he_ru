@@ -6,9 +6,13 @@ extern crate serde_json;
 extern crate wincolor;
 
 use wincolor::{Console, Color, Intense};
+use std::io;
 
 mod hero;
 use hero::hero_mod::*;
+
+mod monster;
+use monster::monster_mod::*;
 
 fn main() {
     display_greeting();
@@ -22,6 +26,17 @@ fn main() {
     };
 
     save_hero(&player_hero);
+
+    let playing: bool = true;
+    while playing{
+        let modifier = pick_training_spot();
+        let fight: bool = true;
+
+        while(fight){
+            let this_monster = monster_factory(&player_hero, modifier);
+
+        }
+    }
 }
 
 pub fn display_greeting() {
@@ -31,4 +46,22 @@ pub fn display_greeting() {
     println!("Welcome to he_ru!");
     con.reset().unwrap();
     println!("This is an idle game for managing a hero.");
+    println!();
+}
+
+pub fn pick_training_spot() -> u8{
+    println!();
+    println!("Pick your training area;");
+    println!("1. Easy");
+    println!("2. Intermediate");
+    println!("3. Advanced");
+
+    let mut selection = String::new();
+
+    io::stdin().read_line(&mut selection).unwrap();
+    selection.trim().parse().unwrap()
+}
+
+pub fn fight(player: &mut Hero, monster: &mut Monster){
+    
 }
