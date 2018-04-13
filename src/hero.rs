@@ -3,6 +3,8 @@ pub mod hero_mod {
     use std::fs::File;
     use std::io::prelude::*;
     use serde_json;
+    use wincolor::{Color, Console, Intense};
+    use std::io;
 
     #[derive(Serialize, Deserialize, Debug)]
     pub struct Hero {
@@ -19,10 +21,45 @@ pub mod hero_mod {
         }
     }
 
+    pub fn get_hero_details_from_user() -> Hero {
+        let mut input_from_user = String::new();
+        let mut ret_hero = hero_factory("", 0, Gender::Male);
+
+        println!("Please enter your hero's name: ");
+        io::stdin().read_line(&mut input_from_user).unwrap();
+        ret_hero.name = input_from_user;
+
+        let mut input_from_user = String::new();
+
+        println!("Please enter your hero's age: ");
+        io::stdin().read_line(&mut input_from_user).unwrap();
+        ret_hero.age = input_from_user.trim().parse().unwrap();
+        let mut input_from_user = String::new();
+
+        println!("Please enter your hero's gender(male/female): ");
+        io::stdin().read_line(&mut input_from_user).unwrap();
+
+        let _male = String::from("MALE");
+        let _female = String::from("FEMALE");
+
+        if _male.eq_ignore_ascii_case(&input_from_user){
+            ret_hero.gender = Gender::Male;
+        }
+        else if _female.eq_ignore_ascii_case(&input_from_user){
+            ret_hero.gender = Gender::Female;
+        }
+        else{
+            ret_hero.gender = Gender::Other;
+        }
+
+        ret_hero
+    }
+
     #[derive(Serialize, Deserialize, Debug)]
     pub enum Gender {
         Male,
         Female,
+        Other
     }
 
     impl fmt::Display for Gender {
@@ -43,18 +80,25 @@ pub mod hero_mod {
         let mut deserialized_hero = String::new();
         let mut config_file = get_config_file(FileMode::Load);
         config_file.read_to_string(&mut deserialized_hero).unwrap();
-        serde_json::from_str(&deserialized_hero).expect("Loaded hero!")
+        match serde_json::from_str(&deserialized_hero) {
+            Ok(hero_to_return) => return hero_to_return,
+            Err(_message) => return hero_factory("", 0, Gender::Male),
+        }
     }
 
+    //TODO: Don't panic when file can't be opened.
     pub fn get_config_file(mode: FileMode) -> File {
         match mode {
             FileMode::Load => match File::open("he_ru.config") {
                 Ok(file_to_return) => return file_to_return,
-                Err(_error) => panic!("Couldn't open file!"),
+                Err(_error) => {
+                    File::create("he_ru.config").unwrap();
+                    return get_config_file(FileMode::Load);
+                }
             },
             FileMode::Save => match File::create("he_ru.config") {
                 Ok(file_to_return) => return file_to_return,
-                Err(_error) => panic!("Couldn't save file!"),
+                Err(_error) => panic!("Couldn't Save!"),
             },
         }
     }
@@ -64,23 +108,30 @@ pub mod hero_mod {
         Load,
     }
 
+    #[test]
+    fn hero_test_save_load() {
+        let mut hero = hero_factory("Ben", 26, Gender::Male);
+        save_hero(&hero);
+        hero = load_hero();
 
-#[test]
-fn hero_test_save_load() {
-    let mut hero = hero_factory("Ben", 26, Gender::Male);
-    save_hero(&hero);
-    hero = load_hero();
+        assert_eq!(hero.name, "Ben");
+        assert_eq!(hero.age, 26);
+        assert_eq!(hero.gender.to_string(), "Male");
 
-    assert_eq!(hero.name, "Ben");
-    assert_eq!(hero.age, 26);
-    assert_eq!(hero.gender.to_string(), "Male");
+        hero = hero_factory("Charlie", 16, Gender::Female);
+        save_hero(&hero);
+        hero = load_hero();
 
-    hero = hero_factory("Charlie", 16, Gender::Female);
-    save_hero(&hero);
-    hero = load_hero();
+        assert_eq!(hero.name, "Charlie");
+        assert_eq!(hero.age, 16);
+        assert_eq!(hero.gender.to_string(), "Female");
+    }
 
-    assert_eq!(hero.name, "Charlie");
-    assert_eq!(hero.age, 16);
-    assert_eq!(hero.gender.to_string(), "Female");
-}
+    #[test]
+    fn test_char_creation() {
+        let test_hero = get_hero_details_from_user();
+        assert_eq!(test_hero.name, "ben");
+        assert_eq!(test_hero.age, 16);
+        assert_eq!(test_hero.gender.to_string(), "Female");
+    }
 }

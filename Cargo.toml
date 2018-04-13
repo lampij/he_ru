@@ -15,3 +15,6 @@ serde_derive = "1.0"
 # Each data format lives in its own crate; the sample code below uses JSON
 # but you may be using a different one.
 serde_json = "1.0"
+
+#Import color schemes for windows console.
+wincolor = "0.1.6"
