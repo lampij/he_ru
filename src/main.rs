@@ -8,6 +8,8 @@ extern crate wincolor;
 
 use wincolor::{Color, Console, Intense};
 use std::io;
+use std::{thread, time};
+use rand::{thread_rng, Rng};
 
 mod hero;
 use hero::hero_mod::*;
@@ -31,19 +33,18 @@ fn main() {
     let playing: bool = true;
     while playing {
         let modifier = pick_training_spot();
-        let fight: bool = true;
+        let fighting: bool = true;
 
-        while (fight) {
-            let this_monster = monster_factory(&player_hero, modifier);
-            println!(
-                "{} {} {} {} {} {}",
-                this_monster.health,
-                this_monster.level,
-                this_monster.strength,
-                this_monster.luck,
-                this_monster.dexterity,
-                this_monster.intelligence
-            );
+        while (fighting) {
+            let mut this_monster = monster_factory(&player_hero, modifier);
+
+            fight(&mut player_hero, &mut this_monster);
+
+            let mut rng = thread_rng();
+            let ten_millis = time::Duration::from_secs(rng.gen_range(0, 3));
+            let now = time::Instant::now();
+
+            thread::sleep(ten_millis);
         }
     }
 }
@@ -71,4 +72,15 @@ pub fn pick_training_spot() -> u8 {
     selection.trim().parse().unwrap()
 }
 
-pub fn fight(player: &mut Hero, monster: &mut Monster) {}
+pub fn fight(player: &mut Hero, monster: &mut Monster) {
+    let player_power = calc_player_fight_stats(player);
+    let monster_power = calc_monster_fight_stats(monster);
+}
+
+pub fn calc_player_fight_stats(player: &Hero) -> u64{
+    100 as u64
+}
+pub fn calc_monster_fight_stats(player: &Monster) -> u64{
+    100 as u64
+}
+
