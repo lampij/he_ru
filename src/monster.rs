@@ -4,7 +4,7 @@ pub mod monster_mod {
 
     pub struct Monster {
         pub level: u8,
-        pub health: u64,
+        pub health: i64,
         pub strength: u16,
         pub dexterity: u16,
         pub intelligence: u16,
@@ -15,7 +15,7 @@ pub mod monster_mod {
         let mut rng = thread_rng();
         Monster {
             level: player.level + modifier,
-            health: player.health + ((rng.gen_range(0, modifier * 5) as u64) * 5),
+            health: player.health + ((rng.gen_range(0, modifier * 5) as i64) * 5) as i64,
             strength: player.strength + (rng.gen_range(0, modifier * 5) as u16),
             dexterity: player.dexterity + (rng.gen_range(0, modifier * 5) as u16),
             intelligence: player.intelligence + (rng.gen_range(0, modifier * 5) as u16),

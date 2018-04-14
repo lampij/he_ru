@@ -3,7 +3,6 @@ pub mod hero_mod {
     use std::fs::File;
     use std::io::prelude::*;
     use serde_json;
-    use wincolor::{Color, Console, Intense};
     use std::io;
 
     #[derive(Serialize, Deserialize, Debug)]
@@ -12,11 +11,12 @@ pub mod hero_mod {
         pub age: u8,
         pub gender: Gender,
         pub level: u8,
-        pub health: u64,
+        pub health: i64,
         pub strength: u16,
         pub dexterity: u16,
         pub intelligence: u16,
         pub luck: u16,
+        pub kills: u64,
     }
 
     pub fn hero_factory(char_name: &str, char_age: u8, char_gender: Gender) -> Hero {
@@ -30,6 +30,7 @@ pub mod hero_mod {
             dexterity: 5,
             intelligence: 5,
             luck: 5,
+            kills: 0,
         }
     }
 
@@ -93,7 +94,11 @@ pub mod hero_mod {
         let mut config_file = get_config_file(FileMode::Load);
         config_file.read_to_string(&mut deserialized_hero).unwrap();
         match serde_json::from_str(&deserialized_hero) {
-            Ok(hero_to_return) => return hero_to_return,
+            Ok(hero_to_return) => {
+                let hero_to_return: Hero = hero_to_return;
+                println!("Loaded {}, level {}, with {} kills.", hero_to_return.name, hero_to_return.level, hero_to_return.kills);
+                return hero_to_return
+                },
             Err(_message) => return hero_factory("", 0, Gender::Male),
         }
     }

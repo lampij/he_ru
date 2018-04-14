@@ -4,12 +4,11 @@ extern crate serde_derive;
 extern crate rand;
 extern crate serde;
 extern crate serde_json;
-extern crate wincolor;
 
-use wincolor::{Color, Console, Intense};
 use std::io;
 use std::{thread, time};
 use rand::{thread_rng, Rng};
+use std::cmp::Ordering;
 
 mod hero;
 use hero::hero_mod::*;
@@ -35,26 +34,22 @@ fn main() {
         let modifier = pick_training_spot();
         let fighting: bool = true;
 
-        while (fighting) {
+        while fighting {
             let mut this_monster = monster_factory(&player_hero, modifier);
 
             fight(&mut player_hero, &mut this_monster);
-
             let mut rng = thread_rng();
             let ten_millis = time::Duration::from_secs(rng.gen_range(0, 3));
-            let now = time::Instant::now();
 
             thread::sleep(ten_millis);
+            save_hero(&player_hero);
         }
     }
 }
 
 pub fn display_greeting() {
-    let mut con = Console::stdout().unwrap();
-    con.fg(Intense::Yes, Color::Cyan).unwrap();
     println!();
     println!("Welcome to he_ru!");
-    con.reset().unwrap();
     println!("This is an idle game for managing a hero.");
     println!();
 }
@@ -73,14 +68,28 @@ pub fn pick_training_spot() -> u8 {
 }
 
 pub fn fight(player: &mut Hero, monster: &mut Monster) {
-    let player_power = calc_player_fight_stats(player);
-    let monster_power = calc_monster_fight_stats(monster);
+    while player.health >= 0 && monster.health >= 0 {
+        let player_power = calc_player_fight_stats(player);
+        let monster_power = calc_monster_fight_stats(monster);
+        player.health -= monster_power;
+        monster.health -= player_power;
+    }
+    match 0.cmp(&player.health) {
+        Ordering::Equal => {
+            println!("You died!");
+        }
+        Ordering::Less => {
+            player.kills += 1;
+        }
+        Ordering::Greater => {
+            println!("You died!");
+        },
+    };
 }
 
-pub fn calc_player_fight_stats(player: &Hero) -> u64{
-    100 as u64
+pub fn calc_player_fight_stats(player: &Hero) -> i64 {
+    100 as i64
 }
-pub fn calc_monster_fight_stats(player: &Monster) -> u64{
-    100 as u64
+pub fn calc_monster_fight_stats(player: &Monster) -> i64 {
+    100 as i64
 }
-
