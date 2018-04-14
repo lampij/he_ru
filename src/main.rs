@@ -31,18 +31,23 @@ fn main() {
 
     let playing: bool = true;
     while playing {
-        let menu: bool = true;
+        let mut menu: bool = true;
         let mut fighting: bool = false;
+        let mut modifier: u8 = 1;
 
         while menu {
             let selection = display_options();
             match selection {
-                1 => { display_character_stats(&player_hero)},
+                1 => { display_character_stats(&player_hero);},
+                2 => {
+                    modifier = pick_training_spot();
+                    menu = false;
+                    fighting = true;
+                }
                 _ => {},
             };
         }
 
-        let modifier = pick_training_spot();
         
 
         while fighting {
