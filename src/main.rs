@@ -31,17 +31,57 @@ fn main() {
 
     let playing: bool = true;
     while playing {
+        let menu: bool = true;
+        let mut fighting: bool = false;
+
+        while menu {
+            let selection = display_options();
+            match selection {
+                1 => { display_character_stats(&player_hero)},
+                _ => {},
+            };
+        }
+
         let modifier = pick_training_spot();
-        let fighting: bool = true;
+        
 
         while fighting {
+            //Important that this is before fight algorithm, creates a weird delay after killing a monster if not.
+            let mut rng = thread_rng();
+            let ten_millis = time::Duration::from_secs(rng.gen_range(3, 5));
+            thread::sleep(ten_millis);
+
             let mut this_monster = monster_factory(&player_hero, modifier);
 
             fight(&mut player_hero, &mut this_monster);
-            let mut rng = thread_rng();
-            let ten_millis = time::Duration::from_secs(rng.gen_range(0, 3));
 
-            thread::sleep(ten_millis);
+            //TODO: Do something when player dies.
+            match 0.cmp(&player_hero.health) {
+                Ordering::Equal => {
+                    player_hero.die();
+                    fighting = false;
+                }
+                Ordering::Greater => {
+                    player_hero.die();
+                    fighting = false;
+                }
+                Ordering::Less => {
+                    player_hero.kills += 1;
+                }
+            };
+
+            //TODO: Do something when monster dies.
+            match 0.cmp(&this_monster.health) {
+                Ordering::Equal => {
+                    this_monster.die();
+                    fighting = false;
+                }
+                Ordering::Greater => {
+                    this_monster.die();
+                    fighting = false;
+                }
+                Ordering::Less => {},
+            }
             save_hero(&player_hero);
         }
     }
@@ -52,6 +92,19 @@ pub fn display_greeting() {
     println!("Welcome to he_ru!");
     println!("This is an idle game for managing a hero.");
     println!();
+}
+
+pub fn display_options() -> u8{
+    println!();
+    println!("What would you like to do:");
+    println!("1. Character Stats");
+    println!("2. Train");
+    println!("3. Manage Inventory (Not Yet Implemented)");
+
+    let mut selection = String::new();
+
+    io::stdin().read_line(&mut selection).unwrap();
+    selection.trim().parse().unwrap()
 }
 
 pub fn pick_training_spot() -> u8 {
@@ -74,22 +127,65 @@ pub fn fight(player: &mut Hero, monster: &mut Monster) {
         player.health -= monster_power;
         monster.health -= player_power;
     }
-    match 0.cmp(&player.health) {
-        Ordering::Equal => {
-            println!("You died!");
-        }
-        Ordering::Less => {
-            player.kills += 1;
-        }
-        Ordering::Greater => {
-            println!("You died!");
-        },
-    };
 }
 
-pub fn calc_player_fight_stats(player: &Hero) -> i64 {
-    100 as i64
+pub fn calc_player_fight_stats(_player: &Hero) -> i64 {
+    //FIXME: For now, we are just making all heros calculate damage the same,
+    //but in the future, when classes are implemented, this will need to be reworked.
+    let raw_damage = _player.strength as i64;
+
+    let mut rng = thread_rng();
+    let roll_d_100 = rng.gen_range(0, 100);
+
+    match _player.luck.cmp(&roll_d_100) {
+        Ordering::Equal => {
+            return apply_crit_modifyer(&raw_damage);
+        }
+        Ordering::Greater => {
+            return apply_crit_modifyer(&raw_damage);
+        }
+        Ordering::Less => {
+            return raw_damage;
+        }
+    }
 }
-pub fn calc_monster_fight_stats(player: &Monster) -> i64 {
-    100 as i64
+pub fn calc_monster_fight_stats(_monster: &Monster) -> i64 {
+    //FIXME: For now, we are just making all heros calculate damage the same,
+    //but in the future, when classes are implemented, this will need to be reworked.
+    let raw_damage = (_monster.strength / 2) as i64;
+
+    let mut rng = thread_rng();
+    let roll_d_100 = rng.gen_range(0, 100);
+
+    match _monster.luck.cmp(&roll_d_100) {
+        Ordering::Equal => {
+            return apply_crit_modifyer(&raw_damage);
+        }
+        Ordering::Greater => {
+            return apply_crit_modifyer(&raw_damage);
+        }
+        Ordering::Less => {
+            return raw_damage;
+        }
+    }
+}
+
+pub fn apply_crit_modifyer(raw_damage: &i64) -> i64 {
+    (raw_damage * 2) as i64
+}
+
+pub fn display_character_stats(player: &Hero) {
+    println!();
+    println!("=============================");
+    println!("Hero Name: {}", player.name);
+    println!("Level: {}", player.level);
+    println!("Kills: {}", player.kills);
+    println!("=============================");
+    println!("Max Health: {}", player.max_health);
+    println!("Strength: {}", player.strength);
+    println!("Dexterity: {}", player.dexterity);
+    println!("Intelligence: {}", player.intelligence);
+    println!("Luck: {}", player.luck);
+
+
 }

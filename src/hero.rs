@@ -12,11 +12,20 @@ pub mod hero_mod {
         pub gender: Gender,
         pub level: u8,
         pub health: i64,
+        pub max_health: i64,
         pub strength: u16,
         pub dexterity: u16,
         pub intelligence: u16,
         pub luck: u16,
         pub kills: u64,
+    }
+
+    impl Hero {
+        pub fn die(&mut self) {
+            println!("You have died!");
+            self.kills = 0;
+            self.health = self.max_health;
+        }
     }
 
     pub fn hero_factory(char_name: &str, char_age: u8, char_gender: Gender) -> Hero {
@@ -25,11 +34,12 @@ pub mod hero_mod {
             age: char_age,
             gender: char_gender,
             level: 0,
-            health: 100,
-            strength: 5,
-            dexterity: 5,
-            intelligence: 5,
-            luck: 5,
+            health: 150,
+            max_health: 150,
+            strength: 15,
+            dexterity: 15,
+            intelligence: 15,
+            luck: 15,
             kills: 0,
         }
     }

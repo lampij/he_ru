@@ -11,6 +11,12 @@ pub mod monster_mod {
         pub luck: u16,
     }
 
+    impl Monster {
+        pub fn die(&self){
+            println!("Monster has died!");
+        }
+    }
+
     pub fn monster_factory(player: &Hero, modifier: u8) -> Monster {
         let mut rng = thread_rng();
         Monster {
