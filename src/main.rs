@@ -1,11 +1,12 @@
 #[macro_use]
 extern crate serde_derive;
 
+extern crate rand;
 extern crate serde;
 extern crate serde_json;
 extern crate wincolor;
 
-use wincolor::{Console, Color, Intense};
+use wincolor::{Color, Console, Intense};
 use std::io;
 
 mod hero;
@@ -16,10 +17,10 @@ use monster::monster_mod::*;
 
 fn main() {
     display_greeting();
-    
+
     //TODO: Try loading a hero first, then if that fails, prompt to create a new one.
     let mut player_hero = load_hero();
-    
+
     match player_hero.age {
         0 => player_hero = get_hero_details_from_user(),
         _ => println!("Welcome {}", player_hero.name),
@@ -28,13 +29,21 @@ fn main() {
     save_hero(&player_hero);
 
     let playing: bool = true;
-    while playing{
+    while playing {
         let modifier = pick_training_spot();
         let fight: bool = true;
 
-        while(fight){
+        while (fight) {
             let this_monster = monster_factory(&player_hero, modifier);
-
+            println!(
+                "{} {} {} {} {} {}",
+                this_monster.health,
+                this_monster.level,
+                this_monster.strength,
+                this_monster.luck,
+                this_monster.dexterity,
+                this_monster.intelligence
+            );
         }
     }
 }
@@ -49,7 +58,7 @@ pub fn display_greeting() {
     println!();
 }
 
-pub fn pick_training_spot() -> u8{
+pub fn pick_training_spot() -> u8 {
     println!();
     println!("Pick your training area;");
     println!("1. Easy");
@@ -62,6 +71,4 @@ pub fn pick_training_spot() -> u8{
     selection.trim().parse().unwrap()
 }
 
-pub fn fight(player: &mut Hero, monster: &mut Monster){
-    
-}
+pub fn fight(player: &mut Hero, monster: &mut Monster) {}
